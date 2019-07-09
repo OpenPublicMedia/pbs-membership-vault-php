@@ -13,6 +13,7 @@ use League\Uri\Components\Query;
 use League\Uri\Parser;
 use League\Uri\Parser\QueryString;
 use OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException;
+use OpenPublicMedia\PbsMembershipVault\Exception\MembershipNotFoundException;
 use OpenPublicMedia\PbsMembershipVault\Query\Results;
 use OpenPublicMedia\PbsMembershipVault\Response\PagedResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -90,6 +91,9 @@ class Client
      *
      * @return ResponseInterface
      *   Response data from the API.
+     *
+     * @throws BadRequestException
+     * @throws RuntimeException
      */
     public function request($method, $endpoint, array $options = []): ResponseInterface
     {
@@ -98,7 +102,10 @@ class Client
         }
 
         try {
-            $response = $this->client->request($method, $endpoint, $options);
+            // The trailing slash is added automatically to all endpoints and
+            // is particularly important for PUT/PATCH requests that will lose
+            // payload if it is missing.
+            $response = $this->client->request($method, $endpoint . '/', $options);
         } catch (GuzzleException $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
@@ -150,6 +157,8 @@ class Client
      * @return null|object
      *   Object representation of the JSON response data or NULL if none is
      *   found.
+     *
+     * @throws BadRequestException
      */
     public function getOne($endpoint, array $query = []): ?stdClass
     {
@@ -240,21 +249,139 @@ class Client
         return $value !== null && $value !== '';
     }
 
+    /**
+     * Finds DatTime objects in an array of key => value data and converts them
+     * to strings expected by the API.
+     *
+     * @param array $data
+     *   Data in a key => value format.
+     *
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-DateandTime
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-Datetime
+     */
+    private static function dateTimesToStrings(array &$data): void
+    {
+        // Convert DateTime objects to expected strings.
+        foreach ($data as $key => $value) {
+            if ($value instanceof DateTime) {
+                $value->setTimezone(new DateTimeZone('UTC'));
+                $updates[$key] = $value->format(self::DATETIME_FORMAT);
+            }
+        }
+    }
+
+    /**
+     * Adds a new membership.
+     *
+     * In order to guarantee that this is an add operation, this method also
+     * verifies by ID that the membership does not already exist in the API.
+     * Otherwise, the API would automatically update an existing membership.
+     *
+     * @param string $id
+     *   Membership ID.
+     * @param string $first_name
+     *   First name.
+     * @param string $last_name
+     *   Last name.
+     * @param string $offer
+     *   Offer key. Currently, this information is only accessible from the
+     *   (Membership Vault console)[https://mvault.console.pbs.org/].
+     * @param DateTime $start_date
+     *   Membership start date.
+     * @param DateTime $expire_date
+     *   Membership expire date.
+     * @param string|null $email
+     *   Email address.
+     * @param string|null $notes
+     *   Notes.
+     * @param string|null $status
+     *  Status. Either "On" or "Off'.
+     * @param bool|null $provisional
+     *   Whether or not the membership is provisional.
+     * @param array|null $additional_metadata
+     *   Additional information (to be JSON encoded).
+     *
+     * @return stdClass
+     *   Data for the newly created Membership.
+     *
+     * @throws BadRequestException
+     */
+    public function addMembership(
+        string $id,
+        string $first_name,
+        string $last_name,
+        string $offer,
+        DateTime $start_date,
+        DateTime $expire_date,
+        ?string $email = null,
+        ?string $notes = null,
+        ?string $status = null,
+        ?bool $provisional = null,
+        ?array $additional_metadata = null
+    ): stdClass {
+        try {
+            $this->getMembershipById($id);
+            // Simulates existing API response.
+            throw new BadRequestException(
+                new Response(400, [], json_encode(['errors' => ['__all__' =>
+                    ['Membership with this Station call sign and Membership ID already exists.']
+                ]]))
+            );
+        } catch (MembershipNotFoundException $e) {
+            // Continue execution, as this exception is desired.
+        }
+        $membership = [
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'email' => $email,
+            'offer' => $offer,
+            'notes' => $notes,
+            'start_date' => $start_date,
+            'expire_date' => $expire_date,
+            'status' => $status,
+            'provisional' => $provisional,
+            'additional_metadata' => $additional_metadata,
+        ];
+        // Remove null/empty values.
+        $membership = array_filter($membership, [__CLASS__, 'notEmptyOrNull']);
+        $response = $this->request('put', 'memberships/' . $id, ['json' => $membership]);
+        $object = json_decode($response->getBody()->getContents());
+        return $object;
+    }
+
+    /**
+     * Updates an existing membership.
+     *
+     * @param string $id
+     *   Membership ID.
+     * @param array $data
+     *   Updates to be made, keyed by field machine names.
+     *
+     * @return bool
+     *   TRUE if the update succeeded, FALSE otherwise (though theoretically
+     *   this should never happen as exceptions handle other cases).
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     */
+    public function updateMembership(string $id, array $data): bool
+    {
+        $endpoint = 'memberships/' . $id;
+        self::dateTimesToStrings($data);
+        $response = $this->request('patch', $endpoint, ['json' => $data]);
+        if ($response->getStatusCode() === 404) {
+            throw new MembershipNotFoundException('id', $id);
+        }
+        return $response->getStatusCode() === 200;
+    }
+
     protected function getMemberships($filter = null, array $query = []): Results
     {
         $endpoint = 'memberships';
         if ($filter) {
             $endpoint .= '/filter/' . $filter;
         }
-
-        // Support DateTime objects for date-based query parameters.
-        foreach ($query as $key => $value) {
-            if ($value instanceof DateTime) {
-                $value->setTimezone(new DateTimeZone('UTC'));
-                $query[$key] = $value->format(self::DATETIME_FORMAT);
-            }
-        }
-
+        self::dateTimesToStrings($query);
         return $this->get($endpoint, $query);
     }
 

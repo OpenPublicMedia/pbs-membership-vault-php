@@ -5,7 +5,6 @@ namespace OpenPublicMedia\PbsMembershipVault\Exception;
 
 use GuzzleHttp\Psr7\Response;
 use OpenPublicMedia\PbsMembershipVault\Client;
-use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -18,23 +17,31 @@ use Throwable;
  *
  * @package OpenPublicMedia\PbsMembershipVault\Exception
  */
-class BadRequestException extends InvalidArgumentException
+class BadRequestException extends PbsMembershipVaultException
 {
+    /**
+     * Throws error data as an array (encoded JSON) keyed by field names and
+     * specific errors and/or the general field name "__all__" for general
+     * errors.
+     *
+     * @param Response $response
+     *   The API response.
+     * @param int $code
+     *   Error code.
+     * @param Throwable|null $previous
+     *   Previous exception to chain.
+     *
+     * TODO: Expand this to evaluate results and throw specific exceptions.
+     */
     public function __construct(Response $response, $code = 0, Throwable $previous = null)
     {
-        $message = 'Unknown error';
         $json = json_decode($response->getBody()->getContents());
-
         if (!empty($json) && isset($json->errors)) {
-            if (is_string($json->errors)) {
-                $message = $json->errors;
-            } elseif (is_object($json->errors)) {
-                $message = json_encode($json->errors);
-            }
+            $message = $json->errors;
         } else {
-            $message = $response->getReasonPhrase();
+            // Follows the API construct of using "__all__" for general errors.
+            $message = ['__all__' => $response->getReasonPhrase()];
         }
-
         parent::__construct($message, $code, $previous);
     }
 }

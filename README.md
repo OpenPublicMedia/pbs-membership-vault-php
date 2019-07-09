@@ -31,11 +31,10 @@ this project.
 - [x] Result/error handling
 - [x] Transparent paged response handling (`OpenPublicMedia\PbsMembershipVault\Response\PagedResponse`)
 - [ ] Membership
-    - [ ] Membership:put
     - [x] Membership:get
     - [x] Membership:list_token (this "list" endpoint returns a single result)
-    - [ ] Membership:update
-    - [ ] Membership:update (PATCH)  
+    - [x] Membership:put
+    - [x] Membership:update (PATCH)
     - [ ] Membership:on_conflict (PATCH)
     - [ ] Membership:delete 
 - [x] Memberships
@@ -51,3 +50,8 @@ this project.
     - [x] Membership:list_provisional/?since
     - [x] Membership:list_grace_period
     - [x] Membership:list_uid
+
+### v2.x
+
+ - [ ] Membership entity
+ - [ ] Improved handling of API error responses
