@@ -1,0 +1,9 @@
+# Composer files
+/vendor/
+
+# IntelliJ project files
+.idea
+
+# Testing files
+coverage
+.phpunit*
