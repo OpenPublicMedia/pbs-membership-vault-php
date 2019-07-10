@@ -49,6 +49,8 @@ this project.
     - [x] Membership:list_provisional/?since
     - [x] Membership:list_grace_period
     - [x] Membership:list_uid
+- [ ] Handling for activation errors
+- [ ] Examples/detailed documentation
 
 ### v2.x
 

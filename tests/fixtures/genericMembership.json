@@ -1,0 +1,38 @@
+{
+    "grace_period": "2020-06-28T07:00:00Z",
+    "update_date": "2019-06-28T22:01:10Z",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "create_date": "2017-06-22T16:29:32Z",
+    "offer": "offer",
+    "notes": "notes",
+    "current_state": {
+        "explanation": {
+            "status": "On",
+            "timing": "within_start_expire_dates",
+            "token_activated": true
+        },
+        "has_access": true
+    },
+    "membership_id": "membership_id",
+    "start_date": "2017-03-31T07:00:00Z",
+    "status": "On",
+    "token": "token",
+    "additional_metadata": "",
+    "activation_date": "2017-06-22T17:24:35Z",
+    "provisional": false,
+    "expire_date": "2020-03-30T07:00:00Z",
+    "pbs_profile": {
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "UID": "uid",
+        "birth_date": null,
+        "retrieval_status": {
+            "status": 200,
+            "message": "Success"
+        },
+        "email": "email@email.email",
+        "login_provider": "PBS"
+    },
+    "email": "email@email.email"
+}

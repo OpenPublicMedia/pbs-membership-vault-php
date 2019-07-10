@@ -146,6 +146,8 @@ class Client
      *
      * @return Results
      *   Generator of the API query results.
+     *
+     * @throws BadRequestException
      */
     public function get(string $endpoint, array $query = []): Results
     {
@@ -210,7 +212,7 @@ class Client
      * @return string
      *   All parameters as a string.
      */
-    public static function buildQuery(array $parameters): string
+    private static function buildQuery(array $parameters): string
     {
         // Remove empty/null values.
         $parameters = array_filter($parameters, [__CLASS__, 'notEmptyOrNull']);
@@ -219,18 +221,18 @@ class Client
     }
 
     /**
-     * Checks if the provided string is not null or empty.
+     * Checks if the provided value is not null or empty.
      *
      * This method is meant to be used with array_filter and accepts "0" (string
      * or integer) as valid.
      *
-     * @param string $value
+     * @param mixed $value
      *   Value to check.
      *
      * @return bool
      *   TRUE if $value is not empty or null, FALSE otherwise.
      */
-    protected static function notEmptyOrNull(?string $value): bool
+    private static function notEmptyOrNull($value): bool
     {
         return $value !== null && $value !== '';
     }
@@ -414,6 +416,8 @@ class Client
      *
      * @return Results
      *   Generator of Memberships.
+     *
+     * @throws BadRequestException
      */
     protected function getMemberships(string $filter = null, array $query = []): Results
     {
@@ -478,6 +482,8 @@ class Client
      *
      * @return Results
      *   Generator of Memberships.
+     *
+     * @throws BadRequestException
      */
     public function getAllMemberships(DateTime $since = null): Results
     {
@@ -500,6 +506,8 @@ class Client
      *
      * @return Results
      *   Generator of active Memberships.
+     *
+     * @throws BadRequestException
      */
     public function getActiveMemberships(
         string $email = null,
@@ -521,6 +529,8 @@ class Client
      *
      * @return Results
      *   Generator of Memberships with the provided email address.
+     *
+     * @throws BadRequestException
      */
     public function getMembershipsByEmail(string $email): Results
     {
@@ -535,6 +545,8 @@ class Client
      *
      * @return Results
      *   Generator of Memberships with the provided UID.
+     *
+     * @throws BadRequestException
      */
     public function getMembershipsByUid(string $uid): Results
     {
@@ -549,6 +561,8 @@ class Client
      *
      * @return Results
      *   Generator of activated Memberships.
+     *
+     * @throws BadRequestException
      */
     public function getActivatedMemberships(DateTime $since = null): Results
     {
@@ -563,6 +577,8 @@ class Client
      *
      * @return Results
      *   Generator of provisional Memberships.
+     *
+     * @throws BadRequestException
      */
     public function getProvisionalMemberships(DateTime $since = null): Results
     {
@@ -574,6 +590,8 @@ class Client
      *
      * @return Results
      *   Generator of Memberships in grace period.
+     *
+     * @throws BadRequestException
      */
     public function getGracePeriodMemberships(): Results
     {
@@ -588,6 +606,8 @@ class Client
      *
      * @return Results
      *   Generator of "deleted" Memberships.
+     *
+     * @throws BadRequestException
      */
     public function getDeletedMemberships(DateTime $since = null): Results
     {

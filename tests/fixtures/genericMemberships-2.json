@@ -1,0 +1,47 @@
+{
+    "collection_info": {
+        "current_page_number": 2,
+        "total_items_count": 4,
+        "items_per_page": 2,
+        "items_current_page": 2,
+        "previous_page_url": "https://mvault.services.pbs.org/api/{id}/memberships/?page=1"
+    },
+    "objects": [
+        {
+            "grace_period": "2020-09-30T00:00:00Z",
+            "update_date": "2019-07-10T17:31:48Z",
+            "first_name": "first_name",
+            "last_name": "last_name",
+            "create_date": "2019-07-10T16:48:38Z",
+            "offer": "offer",
+            "notes": "notes",
+            "membership_id": "membership_id_1",
+            "start_date": "2019-07-02T00:00:00Z",
+            "status": "On",
+            "token": "token-1",
+            "additional_metadata": "",
+            "activation_date": "2019-07-10T17:21:24Z",
+            "provisional": false,
+            "expire_date": "2020-07-02T00:00:00Z",
+            "email": "email@email1.email"
+        },
+        {
+            "grace_period": "2020-09-30T00:00:00Z",
+            "update_date": "2019-07-10T17:31:48Z",
+            "first_name": "first_name",
+            "last_name": "last_name",
+            "create_date": "2019-07-10T16:48:38Z",
+            "offer": "offer",
+            "notes": "notes",
+            "membership_id": "membership_id_2",
+            "start_date": "2019-07-02T00:00:00Z",
+            "status": "On",
+            "token": "token-2",
+            "additional_metadata": "",
+            "activation_date": "2019-07-10T17:21:24Z",
+            "provisional": false,
+            "expire_date": "2020-07-02T00:00:00Z",
+            "email": "email@email2.email"
+        }
+    ]
+}
