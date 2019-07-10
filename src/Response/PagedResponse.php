@@ -8,6 +8,7 @@ use Countable;
 use GuzzleHttp\Psr7\Response;
 use Iterator;
 use OpenPublicMedia\PbsMembershipVault\Client;
+use OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException;
 use stdClass;
 
 /**
@@ -69,9 +70,15 @@ class PagedResponse implements Iterator, Countable
      * @param int $page
      *   Starting page. This also acts as the first page for the Iterator so
      *   "first" may not necessarily mean page 1.
+     *
+     * @throws BadRequestException
      */
-    public function __construct(Client $client, $endpoint, $query = [], $page = 1)
-    {
+    public function __construct(
+        Client $client,
+        string $endpoint,
+        array $query = [],
+        int $page = 1
+    ) {
         $this->client = $client;
         $this->endpoint = $endpoint;
         $this->query = $query;
@@ -87,6 +94,8 @@ class PagedResponse implements Iterator, Countable
      *
      * @return object
      *   The full API response as an object.
+     *
+     * @throws BadRequestException
      */
     private function execute(): stdClass
     {

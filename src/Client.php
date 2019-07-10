@@ -71,8 +71,13 @@ class Client
      * @param array $options
      *   Additional options to pass to Guzzle client.
      */
-    public function __construct($key, $secret, $station_id, $base_uri = self::LIVE, array $options = [])
-    {
+    public function __construct(
+        string $key,
+        string $secret,
+        string $station_id,
+        string $base_uri = self::LIVE,
+        array $options = []
+    ) {
         $options = [
             'base_uri' => $base_uri . $station_id . '/',
             'auth' => [$key, $secret],
@@ -95,7 +100,7 @@ class Client
      * @throws BadRequestException
      * @throws RuntimeException
      */
-    public function request($method, $endpoint, array $options = []): ResponseInterface
+    public function request(string $method, string $endpoint, array $options = []): ResponseInterface
     {
         if (isset($options['query'])) {
             $options['query'] = self::buildQuery($options['query']);
@@ -134,7 +139,7 @@ class Client
     /**
      * Gets an iterator for paging through API responses.
      *
-     * @param $endpoint
+     * @param string $endpoint
      *   URL to query.
      * @param array $query
      *   Additional query parameters in the form `param => value`.
@@ -142,7 +147,7 @@ class Client
      * @return Results
      *   Generator of the API query results.
      */
-    public function get($endpoint, array $query = []): Results
+    public function get(string $endpoint, array $query = []): Results
     {
         $response = new PagedResponse($this, $endpoint, $query);
         return new Results($response);
@@ -151,7 +156,7 @@ class Client
     /**
      * Gets a single object from the API.
      *
-     * @param $endpoint
+     * @param string $endpoint
      *   URL to query.
      * @param array $query
      *   Additional query parameters in the form `param => value`.
@@ -162,7 +167,7 @@ class Client
      *
      * @throws BadRequestException
      */
-    public function getOne($endpoint, array $query = []): ?stdClass
+    public function getOne(string $endpoint, array $query = []): ?stdClass
     {
         $response = $this->request('get', $endpoint, ['query' => $query]);
         if ($response->getStatusCode() === 404) {
@@ -175,42 +180,21 @@ class Client
     }
 
     /**
-     * Gets a complete list of objects by paging through all results.
-     *
-     * @param $endpoint
-     *   URL to query.
-     * @param array $query
-     *   Additional query parameters in the form `param => value`.
-     *
-     * @return array
-     *   All data returned from the API.
-     */
-    public function getAll($endpoint, array $query = []): array
-    {
-        $results = [];
-        $response = new PagedResponse($this, $endpoint, $query);
-        foreach ($response as $page) {
-            array_push($results, ...$page->data);
-        }
-        return $results;
-    }
-
-    /**
      * Searches a JSON response for a link containing next page information.
      *
-     * @param $json
+     * @param stdClass $object
      *   A full response from the API.
      *
      * @return int|null
      *   The number of the next page or null if there is no next page.
      */
-    public static function getNextPage($json): ?int
+    public static function getNextPage(stdClass $object): ?int
     {
         $page = null;
-        if (isset($json->collection_info)
-            && isset($json->collection_info->next_page_url)) {
+        if (isset($object->collection_info)
+            && isset($object->collection_info->next_page_url)) {
             $parser = new Parser();
-            $query = $parser($json->collection_info->next_page_url)['query'];
+            $query = $parser($object->collection_info->next_page_url)['query'];
             $page = (int) QueryString::extract($query)['page'];
         }
         return $page;
@@ -246,7 +230,7 @@ class Client
      * @return bool
      *   TRUE if $value is not empty or null, FALSE otherwise.
      */
-    protected static function notEmptyOrNull($value): bool
+    protected static function notEmptyOrNull(?string $value): bool
     {
         return $value !== null && $value !== '';
     }
@@ -378,11 +362,39 @@ class Client
         return $response->getStatusCode() === 200;
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-memberid
+     *
+     * @param string $id
+     *   ID of Membership to activate.
+     * @param string $uid
+     *   UID of PBS account to activate with.
+     *
+     * @return bool
+     *   TRUE on success, FALSE otherwise.
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     *
+     * TODO: Evaluate/improve this handling (or document).
+     */
     public function activateMembership(string $id, string $uid): bool
     {
         return $this->updateMembership($id, ['uid' => $uid]);
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-delete
+     *
+     * @param string $id
+     *   ID of Membership to be deleted.
+     *
+     * @return bool
+     *   TRUE on success, FALSE otherwise.
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     */
     public function deleteMembership(string $id): bool
     {
         $response = $this->request('delete', 'memberships/' . $id);
@@ -392,7 +404,18 @@ class Client
         return $response->getStatusCode() === 204;
     }
 
-    protected function getMemberships($filter = null, array $query = []): Results
+    /**
+     * Queries the memberships endpoint with various filters/params.
+     *
+     * @param string|null $filter
+     *   Filter to apply to query.
+     * @param array $query
+     *   Query parameters to include.
+     *
+     * @return Results
+     *   Generator of Memberships.
+     */
+    protected function getMemberships(string $filter = null, array $query = []): Results
     {
         $endpoint = 'memberships';
         if ($filter) {
@@ -402,7 +425,19 @@ class Client
         return $this->get($endpoint, $query);
     }
 
-    public function getMembershipById($id): ?stdClass
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-get
+     *
+     * @param string $id
+     *   ID to query for.
+     *
+     * @return stdClass|null
+     *   The Membership object is one is found, null otherwise.
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     */
+    public function getMembershipById(string $id): ?stdClass
     {
         $response = $this->getOne('memberships/' . $id);
         if (empty($response)) {
@@ -411,7 +446,22 @@ class Client
         return $response;
     }
 
-    public function getMembershipByToken($token): ?stdClass
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-list_token
+     *
+     * Despite the "list" naming for the endpoint, only a single object is
+     * returned.
+     *
+     * @param string $token
+     *   Token to query for.
+     *
+     * @return stdClass|null
+     *   The Membership object is one is found, null otherwise.
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     */
+    public function getMembershipByToken(string $token): ?stdClass
     {
         $response = $this->getOne('memberships/filter/token/' . $token);
         if (empty($response)) {
@@ -420,13 +470,39 @@ class Client
         return $response;
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-get
+     *
+     * @param DateTime|null $since
+     *   Minimum date to apply to query.
+     *
+     * @return Results
+     *   Generator of Memberships.
+     */
     public function getAllMemberships(DateTime $since = null): Results
     {
         return $this->getMemberships(null, ['last_updated_since' => $since]);
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-email
+     *
+     * This endpoint returns _only_ active Memberships. A membership in its
+     * grace period, for example, will not be returned even though it is still
+     * usable.
+     *
+     * @param string|null $email
+     *   Email address to filter for.
+     * @param DateTime|null $start_date
+     *   Minimum date to apply to query.
+     * @param DateTime|null $end_date
+     *   Maximum date to apply to query.
+     *
+     * @return Results
+     *   Generator of active Memberships.
+     */
     public function getActiveMemberships(
-        $email = null,
+        string $email = null,
         DateTime $start_date = null,
         DateTime $end_date = null
     ): Results {
@@ -437,31 +513,82 @@ class Client
         ]);
     }
 
-    public function getMembershipsByEmail($email): Results
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-list_uid
+     *
+     * @param string $email
+     *   Email address to filter for.
+     *
+     * @return Results
+     *   Generator of Memberships with the provided email address.
+     */
+    public function getMembershipsByEmail(string $email): Results
     {
         return $this->getMemberships('email/' . $email);
     }
 
-    public function getMembershipsByUid($uid): Results
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-list_uid
+     *
+     * @param string $uid
+     *   UID to filter for.
+     *
+     * @return Results
+     *   Generator of Memberships with the provided UID.
+     */
+    public function getMembershipsByUid(string $uid): Results
     {
         return $this->getMemberships('uid/' . $uid);
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-listactivated
+     *
+     * @param DateTime|null $since
+     *   Minimum date to apply to query.
+     *
+     * @return Results
+     *   Generator of activated Memberships.
+     */
     public function getActivatedMemberships(DateTime $since = null): Results
     {
         return $this->getMemberships('activated', ['since' => $since]);
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-listprovisional
+     *
+     * @param DateTime|null $since
+     *   Minimum date to apply to query.
+     *
+     * @return Results
+     *   Generator of provisional Memberships.
+     */
     public function getProvisionalMemberships(DateTime $since = null): Results
     {
         return $this->getMemberships('provisional', ['since' => $since]);
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-list_grace_period
+     *
+     * @return Results
+     *   Generator of Memberships in grace period.
+     */
     public function getGracePeriodMemberships(): Results
     {
         return $this->getMemberships('grace_period');
     }
 
+    /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-delete
+     *
+     * @param DateTime|null $since
+     *   Minimum date to apply to query.
+     *
+     * @return Results
+     *   Generator of "deleted" Memberships.
+     */
     public function getDeletedMemberships(DateTime $since = null): Results
     {
         return $this->getMemberships('deleted', ['since' => $since]);

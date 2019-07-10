@@ -25,7 +25,7 @@ class PbsMembershipVaultException extends Exception
      * @param Throwable|null $previous
      *   Previous exception to chain.
      */
-    public function __construct($message, $code = 0, Throwable $previous = null)
+    public function __construct($message, int $code = 0, Throwable $previous = null)
     {
         $json = json_encode($message);
         if (!$json) {

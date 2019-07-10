@@ -25,8 +25,12 @@ class MembershipNotFoundException extends PbsMembershipVaultException
      * @param Throwable|null $previous
      *   Previous exception to chain.
      */
-    public function __construct(string $type, string $value, $code = 0, Throwable $previous = null)
-    {
+    public function __construct(
+        string $type,
+        string $value,
+        int $code = 0,
+        Throwable $previous = null
+    ) {
         parent::__construct(['type'=> $type, 'value' => $value], $code, $previous);
     }
 }

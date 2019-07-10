@@ -33,7 +33,7 @@ class BadRequestException extends PbsMembershipVaultException
      *
      * TODO: Expand this to evaluate results and throw specific exceptions.
      */
-    public function __construct(Response $response, $code = 0, Throwable $previous = null)
+    public function __construct(Response $response, int $code = 0, Throwable $previous = null)
     {
         $json = json_decode($response->getBody()->getContents());
         if (!empty($json) && isset($json->errors)) {
