@@ -117,6 +117,7 @@ class Client
             case 400:
             case 401:
             case 403:
+            case 409:
                 throw new BadRequestException($response);
             case 404:
                 // "Not found" is allowed to fall through and should be handled
@@ -265,7 +266,7 @@ class Client
         foreach ($data as $key => $value) {
             if ($value instanceof DateTime) {
                 $value->setTimezone(new DateTimeZone('UTC'));
-                $updates[$key] = $value->format(self::DATETIME_FORMAT);
+                $data[$key] = $value->format(self::DATETIME_FORMAT);
             }
         }
     }
@@ -330,7 +331,7 @@ class Client
         } catch (MembershipNotFoundException $e) {
             // Continue execution, as this exception is desired.
         }
-        $membership = [
+        $data = [
             'first_name' => $first_name,
             'last_name' => $last_name,
             'email' => $email,
@@ -342,9 +343,10 @@ class Client
             'provisional' => $provisional,
             'additional_metadata' => $additional_metadata,
         ];
+        self::dateTimesToStrings($data);
         // Remove null/empty values.
-        $membership = array_filter($membership, [__CLASS__, 'notEmptyOrNull']);
-        $response = $this->request('put', 'memberships/' . $id, ['json' => $membership]);
+        $data = array_filter($data, [__CLASS__, 'notEmptyOrNull']);
+        $response = $this->request('put', 'memberships/' . $id, ['json' => $data]);
         $object = json_decode($response->getBody()->getContents());
         return $object;
     }
@@ -373,6 +375,11 @@ class Client
             throw new MembershipNotFoundException('id', $id);
         }
         return $response->getStatusCode() === 200;
+    }
+
+    public function activateMembership(string $id, string $uid): bool
+    {
+        return $this->updateMembership($id, ['uid' => $uid]);
     }
 
     protected function getMemberships($filter = null, array $query = []): Results

@@ -35,7 +35,6 @@ this project.
     - [x] Membership:list_token (this "list" endpoint returns a single result)
     - [x] Membership:put
     - [x] Membership:update (PATCH)
-    - [ ] Membership:on_conflict (PATCH)
     - [ ] Membership:delete 
 - [x] Memberships
     - [x] Membership:list
