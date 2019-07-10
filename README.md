@@ -30,12 +30,12 @@ this project.
 - [x] API direct querying (`$client->request()`)
 - [x] Result/error handling
 - [x] Transparent paged response handling (`OpenPublicMedia\PbsMembershipVault\Response\PagedResponse`)
-- [ ] Membership
+- [x] Membership
     - [x] Membership:get
     - [x] Membership:list_token (this "list" endpoint returns a single result)
     - [x] Membership:put
     - [x] Membership:update (PATCH)
-    - [ ] Membership:delete 
+    - [x] Membership:delete 
 - [x] Memberships
     - [x] Membership:list
     - [x] Memberships:last_updated_since

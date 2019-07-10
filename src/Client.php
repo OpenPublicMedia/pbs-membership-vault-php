@@ -113,6 +113,7 @@ class Client
         /** @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-HTTPResponseStatusCodes */
         switch ($response->getStatusCode()) {
             case 200:
+            case 204:
                 break;
             case 400:
             case 401:
@@ -380,6 +381,15 @@ class Client
     public function activateMembership(string $id, string $uid): bool
     {
         return $this->updateMembership($id, ['uid' => $uid]);
+    }
+
+    public function deleteMembership(string $id): bool
+    {
+        $response = $this->request('delete', 'memberships/' . $id);
+        if ($response->getStatusCode() === 404) {
+            throw new MembershipNotFoundException('id', $id);
+        }
+        return $response->getStatusCode() === 204;
     }
 
     protected function getMemberships($filter = null, array $query = []): Results
