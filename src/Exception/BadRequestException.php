@@ -27,7 +27,8 @@ class BadRequestException extends PbsMembershipVaultException
      * @param Response $response
      *   The API response.
      * @param int $code
-     *   Error code.
+     *   Error code. This value will only be used if it is not the default (0).
+     *   In most cases, the $response HTTP status code will be used.
      * @param Throwable|null $previous
      *   Previous exception to chain.
      *
@@ -42,6 +43,12 @@ class BadRequestException extends PbsMembershipVaultException
             // Follows the API construct of using "__all__" for general errors.
             $message = ['__all__' => $response->getReasonPhrase()];
         }
+
+        // Use the HTTP status code if $code is not set.
+        if (empty($code)) {
+            $code = $response->getStatusCode();
+        }
+
         parent::__construct($message, $code, $previous);
     }
 }

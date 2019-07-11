@@ -365,6 +365,62 @@ class Client
     }
 
     /**
+     * Attempts to activate a membership.
+     *
+     * The API returns a number of different payloads indicating errors for this
+     * process. It is left up to the implementor to decide how those errors
+     * should be handled. In all cases other than success, this method should
+     * throw a BadRequestException containing detailed information. At the time
+     * of writing, PBS documents four possible error payloads:
+     *
+     * - Invalid PBS Account UID (400)
+     * - PBS Account UID already activated a different Membership (409)
+     * - Membership was already activated by a different PBS Account UID (409)
+     * - Activation service is down (500)
+     *
+     * Attempting to activate a Membership with a PBS Account UID that has
+     * already activated the Membership should still return a success response.
+     *
+     * Because of the ambiguity of these error states, this method does not make
+     * any attempt to resolve these errors and/or handle each specifically.
+     * Implementors are advised to verify the state of a UID and Membership
+     * _before_ attempting activation. E.g. --
+     *
+     * ```php
+     * $membership_id = 'XXXXXXXXXXXX';
+     * $uid = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx';
+     *
+     * $client = new Client(...);
+     *
+     * try {
+     *     $membership = $client->getMembershipById($membership_id);
+     * } catch (MembershipNotFoundException $e) {
+     *     // Handle as needed (e.g. create a new one!).
+     * }
+     *
+     * if ($membership->current_state->has_access && $membership->pbs_profile->uid != $uid) {
+     *     // Another UID has already activated the Membership!
+     * }
+     *
+     * $memberships = $client->getMembershipsByUid($uid);
+     * $activated = false;
+     *
+     * foreach ($memberships as $membership) {
+     *     if ($membership->current_state->has_access) {
+     *         $activated = $membership;
+     *         break;
+     *     }
+     * }
+     *
+     * if (!$activated) {
+     *     // Woo!
+     *     $client->activateMembership($membership_id, $uid);
+     * }
+     * else {
+     *     // The UID has already activated a different Membership ($activated)!
+     * }
+     * ```
+     *
      * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-memberid
      *
      * @param string $id
@@ -377,8 +433,6 @@ class Client
      *
      * @throws BadRequestException
      * @throws MembershipNotFoundException
-     *
-     * TODO: Evaluate/improve this handling (or document).
      */
     public function activateMembership(string $id, string $uid): bool
     {
