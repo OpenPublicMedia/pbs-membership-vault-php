@@ -3,6 +3,14 @@
 This library abstracts interactions with the 
 [PBS Membership Vault API](https://docs.pbs.org/display/MV/Membership+Vault+API).
 
+## Installation
+
+Install via composer:
+
+```bash
+composer require openpublicmedia/pbs-membership-vault-php
+```
+
 ## Use
 
 The primary class provided by this library is `OpenPublicMedia\PbsMembershipVault\Client`. 
