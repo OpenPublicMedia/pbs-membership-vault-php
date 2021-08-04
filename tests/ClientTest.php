@@ -18,7 +18,8 @@ use RuntimeException;
  */
 class ClientTest extends TestCaseBase
 {
-    public function testRequestRuntimeException() {
+    public function testRequestRuntimeException()
+    {
         $this->mockHandler->append($this->apiJsonResponse(420));
         $this->expectException(RuntimeException::class);
         $this->client->request('get', 'memberships');
@@ -52,7 +53,8 @@ class ClientTest extends TestCaseBase
      *
      * @throws ReflectionException
      */
-    public function testNotEmptyOrNull($value, bool $expectation) {
+    public function testNotEmptyOrNull($value, bool $expectation)
+    {
         $result = $this->invokeMethod($this->client, 'notEmptyOrNull', [$value]);
         $this->assertEquals($result, $expectation);
     }
@@ -63,7 +65,8 @@ class ClientTest extends TestCaseBase
      *
      * @see testNotEmptyOrNull()
      */
-    public function notEmptyOrNullProvider() {
+    public function notEmptyOrNullProvider()
+    {
         return [
             ['', false],
             [null, false],
@@ -209,7 +212,8 @@ class ClientTest extends TestCaseBase
         $this->verifyGenerator($result, 4);
     }
 
-    public function testGetActiveMemberships() {
+    public function testGetActiveMemberships()
+    {
         $this->mockHandler->append($this->jsonFixtureResponse('genericMemberships-1'));
         $result = $this->client->getActiveMemberships();
         $this->verifyGenerator($result, 4);

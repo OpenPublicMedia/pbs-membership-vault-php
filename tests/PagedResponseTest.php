@@ -23,14 +23,16 @@ class PagedResponseTest extends TestCaseBase
         return $this->client->getAllMemberships();
     }
 
-    public function testArrayResults() {
+    public function testArrayResults()
+    {
         $this->mockHandler->append($this->jsonFixtureResponse('genericMembershipsArray'));
         $result = $this->client->getMembershipsByUid('uid');
         $this->assertInstanceOf(Results::class, $result);
         $this->assertCount(1, $result);
     }
 
-    public function testEmptyResults() {
+    public function testEmptyResults()
+    {
         $this->mockHandler->append($this->apiJsonResponse(404));
         $results = $this->client->getAllMemberships();
         $this->assertCount(0, $results);
