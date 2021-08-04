@@ -4,10 +4,10 @@
     "type": "library",
     "license": "Apache-2.0",
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.2",
         "ext-json": "*",
-        "guzzlehttp/guzzle": "^6.3",
-        "league/uri-components": "^1.8",
+        "guzzlehttp/guzzle": "^6.3 || ^7.0",
+        "league/uri-components": "^2.0",
         "league/uri-parser": "^1.4",
         "league/uri-query-parser": "^1.0"
     },

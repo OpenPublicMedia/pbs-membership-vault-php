@@ -216,7 +216,7 @@ class Client
     {
         // Remove empty/null values.
         $parameters = array_filter($parameters, [__CLASS__, 'notEmptyOrNull']);
-        $query = Query::createFromPairs($parameters)->withoutEmptyPairs();
+        $query = Query::createFromParams($parameters)->withoutEmptyPairs();
         return (string) $query;
     }
 
