@@ -1,0 +1,12 @@
+<ruleset name="openpublicmedia/pbs-membership-vault-php">
+    <description>PBS Membership Vault PHP CodeSniffer configuration.</description>
+    <arg name="extensions" value="php"/>
+
+    <config name="testVersion" value="7.4-" />
+
+    <file>.</file>
+    <exclude-pattern>vendor</exclude-pattern>
+
+    <rule ref="PSR2" />
+    <rule ref="./vendor/phpcompatibility/php-compatibility/PHPCompatibility" />
+</ruleset>
