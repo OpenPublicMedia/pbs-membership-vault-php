@@ -10,8 +10,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Response;
 use League\Uri\Components\Query;
-use League\Uri\Parser;
-use League\Uri\Parser\QueryString;
+use League\Uri\Uri;
 use OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException;
 use OpenPublicMedia\PbsMembershipVault\Exception\MembershipNotFoundException;
 use OpenPublicMedia\PbsMembershipVault\Query\Results;
@@ -195,9 +194,10 @@ class Client
         $page = null;
         if (isset($object->collection_info)
             && isset($object->collection_info->next_page_url)) {
-            $parser = new Parser();
-            $query = $parser($object->collection_info->next_page_url)['query'];
-            $page = (int) QueryString::extract($query)['page'];
+            $uri = Uri::createFromString($object->collection_info->next_page_url);
+            $params = Query::createFromUri($uri);
+            $page = (int) $params->get('page');
+            var_dump($page);
         }
         return $page;
     }
@@ -334,8 +334,7 @@ class Client
         // Remove null/empty values.
         $data = array_filter($data, [__CLASS__, 'notEmptyOrNull']);
         $response = $this->request('put', 'memberships/' . $id, ['json' => $data]);
-        $object = json_decode($response->getBody()->getContents());
-        return $object;
+        return json_decode($response->getBody()->getContents());
     }
 
     /**
