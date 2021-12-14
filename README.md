@@ -1,6 +1,6 @@
 # PBS Membership Vault PHP Library
 
-This library abstracts interactions with the 
+This library abstracts interactions with the
 [PBS Membership Vault API](https://docs.pbs.org/display/MV/Membership+Vault+API).
 
 ## Installation
@@ -13,12 +13,12 @@ composer require openpublicmedia/pbs-membership-vault-php
 
 ## Use
 
-The primary class provided by this library is `OpenPublicMedia\PbsMembershipVault\Client`. 
+The primary class provided by this library is `OpenPublicMedia\PbsMembershipVault\Client`.
 A `Client` instance can be used to interact with membership data in various ways.
 
 ### Response data structures
 
-Responses from the `Client` class will return a Generator when querying for 
+Responses from the `Client` class will return a Generator when querying for
 multiple memberships (e.g. with `getMemberships`) or a single `stdClass` object
 when querying for a specific membership record (e.g. with `getMembershipById($id)`).
 
@@ -149,11 +149,11 @@ $expire_date->add(new DateInterval('P1Y'));
 
 try {
     $membership = $client->addMembership(
-        'membership_id', 
-        '', 
-        '', 
-        'offer', 
-        $start_date, 
+        'membership_id',
+        '',
+        '',
+        'offer',
+        $start_date,
         $end_date
     );
 } catch (BadRequestException $e) {
@@ -209,7 +209,7 @@ this project.
     - [x] Membership:list_token (this "list" endpoint returns a single result)
     - [x] Membership:put
     - [x] Membership:update (PATCH)
-    - [x] Membership:delete 
+    - [x] Membership:delete
 - [x] Memberships
     - [x] Membership:list
     - [x] Memberships:last_updated_since
@@ -225,7 +225,11 @@ this project.
     - [x] Membership:list_uid
 - [x] Examples/detailed documentation
 
-### v2.x
+### v2
+
+- [x] PHP 8 support
+
+### v3.x
 
  - [ ] Membership entity (to replace stdClass)
  - [ ] Improved handling of API error responses

@@ -10,8 +10,7 @@ use Throwable;
 /**
  * Handle API response errors manually, as the API passes error information back
  * in JSON format in the response body. The Membership Vault Client passes the
- * option "http_errors" to the Guzzle client to prevent Guzzle from throwing for
- * HTTP errors.
+ * option "http_errors" to Guzzle to prevent Guzzle from throwing HTTP errors.
  *
  * @see Client::__construct()
  *

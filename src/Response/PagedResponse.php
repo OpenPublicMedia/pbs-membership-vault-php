@@ -18,45 +18,14 @@ use stdClass;
  */
 class PagedResponse implements Iterator, Countable
 {
-    /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * @var string
-     */
-    private $endpoint;
-
-    /**
-     * @var array
-     */
-    private $query;
-
-    /**
-     * @var int
-     */
-    private $first;
-
-    /**
-     * @var int
-     */
-    private $page;
-
-    /**
-     * @var int
-     */
-    private $count;
-
-    /**
-     * @var int
-     */
-    private $totalItemsCount;
-
-    /**
-     * @var array
-     */
-    private $response;
+    private Client $client;
+    private string $endpoint;
+    private array $query;
+    private int $first;
+    private ?int $page;
+    private int $count;
+    private int $totalItemsCount;
+    private mixed $response;
 
     /**
      * PagedResponse constructor.
@@ -138,6 +107,8 @@ class PagedResponse implements Iterator, Countable
 
     /**
      * @inheritDoc
+     *
+     * @throws \OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException
      */
     public function current(): stdClass
     {

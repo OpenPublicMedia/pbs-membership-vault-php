@@ -2,7 +2,7 @@
     <description>PBS Membership Vault PHP CodeSniffer configuration.</description>
     <arg name="extensions" value="php"/>
 
-    <config name="testVersion" value="7.4-" />
+    <config name="testVersion" value="8.0-" />
 
     <file>.</file>
     <exclude-pattern>vendor</exclude-pattern>

@@ -51,10 +51,8 @@ class Client
 
     /**
      * Client for handling API requests
-     *
-     * @var GuzzleClient
      */
-    protected $client;
+    protected GuzzleClient $client;
 
     /**
      * Client constructor.
@@ -187,7 +185,7 @@ class Client
      *   A full response from the API.
      *
      * @return int|null
-     *   The number of the next page or null if there is no next page.
+     *   The number of the next page or null if there is not a next page.
      */
     public static function getNextPage(stdClass $object): ?int
     {
@@ -197,7 +195,6 @@ class Client
             $uri = Uri::createFromString($object->collection_info->next_page_url);
             $params = Query::createFromUri($uri);
             $page = (int) $params->get('page');
-            var_dump($page);
         }
         return $page;
     }
@@ -232,7 +229,7 @@ class Client
      * @return bool
      *   TRUE if $value is not empty or null, FALSE otherwise.
      */
-    private static function notEmptyOrNull($value): bool
+    private static function notEmptyOrNull(mixed $value): bool
     {
         return $value !== null && $value !== '';
     }
@@ -283,9 +280,9 @@ class Client
      * @param string|null $notes
      *   Notes.
      * @param string|null $status
-     *  Status. Either "On" or "Off'.
+     *  Status. Either "On" or "Off".
      * @param bool|null $provisional
-     *   Whether or not the membership is provisional.
+     *   Whether the membership is provisional.
      * @param array|null $additional_metadata
      *   Additional information (to be JSON encoded).
      *
@@ -315,7 +312,7 @@ class Client
                     ['Membership with this Station call sign and Membership ID already exists.']
                 ]]))
             );
-        } catch (MembershipNotFoundException $e) {
+        } catch (MembershipNotFoundException) {
             // Continue execution, as this exception is desired.
         }
         $data = [
@@ -386,8 +383,8 @@ class Client
      * _before_ attempting activation. E.g. --
      *
      * ```php
-     * $membership_id = 'XXXXXXXXXXXX';
-     * $uid = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx';
+     * $membership_id = '123ABC';
+     * $uid = '123e4567-e89b-12d3-a456-426614174000';
      *
      * $client = new Client(...);
      *
@@ -460,7 +457,7 @@ class Client
     }
 
     /**
-     * Queries the memberships endpoint with various filters/params.
+     * Queries the membership endpoint with various filters/params.
      *
      * @param string|null $filter
      *   Filter to apply to query.
