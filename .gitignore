@@ -1,4 +1,5 @@
 # Composer files
+composer.lock
 /vendor/
 
 # IntelliJ project files
