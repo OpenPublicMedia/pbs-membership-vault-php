@@ -12,7 +12,7 @@ use Throwable;
  *
  * @package OpenPublicMedia\PbsMembershipVault\Exception
  */
-class PbsMembershipVaultException extends Exception
+abstract class PbsMembershipVaultException extends Exception
 {
     /**
      * The message value is always JSON encoded as exceptions provided by this

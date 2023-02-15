@@ -12,6 +12,8 @@ use GuzzleHttp\Psr7\Response;
 use League\Uri\Components\Query;
 use League\Uri\Uri;
 use OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException;
+use OpenPublicMedia\PbsMembershipVault\Exception\MembershipActivatedException;
+use OpenPublicMedia\PbsMembershipVault\Exception\AnotherMembershipActivatedException;
 use OpenPublicMedia\PbsMembershipVault\Exception\MembershipNotFoundException;
 use OpenPublicMedia\PbsMembershipVault\Query\Results;
 use OpenPublicMedia\PbsMembershipVault\Response\PagedResponse;
@@ -391,11 +393,8 @@ class Client
      * try {
      *     $membership = $client->getMembershipById($membership_id);
      * } catch (MembershipNotFoundException $e) {
-     *     // Handle as needed (e.g. create a new one!).
-     * }
-     *
-     * if ($membership->current_state->has_access && $membership->pbs_profile->uid != $uid) {
-     *     // Another UID has already activated the Membership!
+     * } catch (AnotherMembershipActivatedException $e) {
+     * } catch (MembershipActivatedException $e) {
      * }
      *
      * $memberships = $client->getMembershipsByUid($uid);
@@ -428,11 +427,50 @@ class Client
      *   TRUE on success, FALSE otherwise.
      *
      * @throws BadRequestException
+     * @throws MembershipActivatedException
      * @throws MembershipNotFoundException
+     * @throws AnotherMembershipActivatedException
      */
     public function activateMembership(string $id, string $uid): bool
     {
-        return $this->updateMembership($id, ['uid' => $uid]);
+        try {
+            return $this->updateMembership($id, ['uid' => $uid]);
+        } catch (BadRequestException $e) {
+            if ($e->getCode() === 409) {
+                $messages = json_decode($e->getMessage(), true)['__all__'] ?? [];
+                foreach ($messages as $message) {
+                    preg_match(
+                        pattern: '/^The UID (.+) has already activated membership (.+)/i',
+                        subject: $message,
+                        matches: $matches
+                    );
+                    if (count($matches) === 3) {
+                        throw new AnotherMembershipActivatedException(
+                            $matches[0],
+                            $matches[2],
+                            $matches[1],
+                            $e->getCode(),
+                            $e
+                        );
+                    }
+                    preg_match(
+                        pattern: '/^The membership (.+) was already activated with UID (.+)/i',
+                        subject: $message,
+                        matches: $matches
+                    );
+                    if (count($matches) === 3) {
+                        throw new MembershipActivatedException(
+                            $matches[0],
+                            $matches[1],
+                            $matches[2],
+                            $e->getCode(),
+                            $e
+                        );
+                    }
+                }
+            }
+            throw $e;
+        }
     }
 
     /**

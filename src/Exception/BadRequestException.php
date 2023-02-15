@@ -30,8 +30,6 @@ class BadRequestException extends PbsMembershipVaultException
      *   In most cases, the $response HTTP status code will be used.
      * @param Throwable|null $previous
      *   Previous exception to chain.
-     *
-     * TODO: Expand this to evaluate results and throw specific exceptions.
      */
     public function __construct(Response $response, int $code = 0, Throwable $previous = null)
     {

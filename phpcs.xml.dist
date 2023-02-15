@@ -1,6 +1,10 @@
 <ruleset name="openpublicmedia/pbs-membership-vault-php">
     <description>PBS Membership Vault PHP CodeSniffer configuration.</description>
     <arg name="extensions" value="php"/>
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="parallel" value="75"/>
+    <arg value="p"/>
 
     <config name="testVersion" value="8.0-" />
 
@@ -8,5 +12,4 @@
     <exclude-pattern>vendor</exclude-pattern>
 
     <rule ref="PSR2" />
-    <rule ref="./vendor/phpcompatibility/php-compatibility/PHPCompatibility" />
 </ruleset>

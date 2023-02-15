@@ -175,7 +175,7 @@ try {
 ```
 
 The exception `OpenPublicMedia\PbsMembershipVault\Exception\MembershipNotFoundException`
-is used to indicate that a Membership has not been found for a provided ID.
+indicates a Membership has not been found for a provided ID.
 
 ```php
 $membership_id = 'does_not_exist';
@@ -190,6 +190,60 @@ try {
       public $value =>
       string(17) "does_not_exist"
     }
+}
+```
+
+The exception `\OpenPublicMedia\PbsMembershipVault\Exception\MembershipActivatedException`
+indicates a Membership has already been activated by a PBS Account other than the one request.
+
+```php
+$membership_id = 'ALREADY_ACTIVATED';
+$uid = '11111111-2222-3333-4444-555555555555'
+try {
+    $membership = $client->activateMembership($membership_id, $uid);
+} catch (MembershipActivatedException $e) {
+    $response = json_decode($e->getMessage());
+    var_dump($response);
+    object(stdClass)#31 (3) {
+      ["message"]=>
+      string(101) "The membership ALREADY_ACTIVATED was already activated with UID 11111111-2222-3333-4444-555555555555"
+      ["id"]=>
+      string(18) "ALREADY_ACTIVATED"
+      ["uid"]=>
+      string(36) "11111111-2222-3333-4444-555555555555"
+    }
+    var_dump($e->getMembershipId());
+    string(18) "ALREADY_ACTIVATED"
+    var_dump($e->getPbsAccountUid());
+    string(36) "11111111-2222-3333-4444-555555555555"
+
+}
+```
+
+The exception `\OpenPublicMedia\PbsMembershipVault\Exception\AnotherMembershipActivatedException`
+indicates a PBS Account has already activated a different membership.
+
+```php
+$membership_id = '0123456789ABCDEF';
+$uid = '11111111-2222-3333-4444-555555555555'
+try {
+    $membership = $client->activateMembership($membership_id, $uid);
+} catch (MembershipActivatedException $e) {
+    $response = json_decode($e->getMessage());
+    var_dump($response);
+    object(stdClass)#31 (3) {
+      ["message"]=>
+      string(96) "The UID 11111111-2222-3333-4444-555555555555 has already activated membership 0123456789ABCDEF"
+      ["id"]=>
+      string(18) "0123456789ABCDEF"
+      ["uid"]=>
+      string(36) "11111111-2222-3333-4444-555555555555"
+    }
+    var_dump($e->getMembershipId());
+    string(18) "0123456789ABCDEF"
+    var_dump($e->getPbsAccountUid());
+    string(36) "11111111-2222-3333-4444-555555555555"
+
 }
 ```
 
@@ -232,5 +286,5 @@ this project.
 ### v3.x
 
  - [ ] Membership entity (to replace stdClass)
- - [ ] Improved handling of API error responses
- - [ ] Improved handling of activation specifically
+ - [x] Improved handling of API error responses
+ - [x] Improved handling of activation specifically

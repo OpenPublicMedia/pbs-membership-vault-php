@@ -4,7 +4,9 @@
 namespace OpenPublicMedia\PbsMembershipVault\Test;
 
 use DateTime;
+use OpenPublicMedia\PbsMembershipVault\Exception\AnotherMembershipActivatedException;
 use OpenPublicMedia\PbsMembershipVault\Exception\BadRequestException;
+use OpenPublicMedia\PbsMembershipVault\Exception\MembershipActivatedException;
 use OpenPublicMedia\PbsMembershipVault\Exception\MembershipNotFoundException;
 use ReflectionException;
 use RuntimeException;
@@ -149,6 +151,28 @@ class ClientTest extends TestCaseBase
         $this->mockHandler->append(self::apiJsonResponse(200));
         $result = $this->client->activateMembership('id', 'uid');
         $this->assertTrue($result);
+    }
+
+    public function testMembershipActivatedException()
+    {
+        $this->mockHandler->append($this->jsonFixtureResponse('membershipActivated', 409));
+        try {
+            $this->client->activateMembership('ABCDEFGHIJKLMNOP', '11111111-2222-3333-4444-555555555555');
+        } catch (MembershipActivatedException $e) {
+            $this->assertEquals($e->getMembershipId(), 'ABCDEFGHIJKLMNOP');
+            $this->assertEquals($e->getPbsAccountUid(), '11111111-2222-3333-4444-555555555555');
+        }
+    }
+
+    public function testAnotherMembershipActivatedException()
+    {
+        $this->mockHandler->append($this->jsonFixtureResponse('anotherMembershipActivated', 409));
+        try {
+            $this->client->activateMembership('ABCDEFGHIJKLMNOP', '11111111-2222-3333-4444-555555555555');
+        } catch (AnotherMembershipActivatedException $e) {
+            $this->assertEquals($e->getMembershipId(), 'ABCDEFGHIJKLMNOP');
+            $this->assertEquals($e->getPbsAccountUid(), '11111111-2222-3333-4444-555555555555');
+        }
     }
 
     public function testDeleteMembership()

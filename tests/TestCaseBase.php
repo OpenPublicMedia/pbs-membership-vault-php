@@ -67,14 +67,16 @@ class TestCaseBase extends TestCase
     /**
      * @param string $name
      *   Base file name for a JSON fixture file.
+     * @param int $code
+     *   Response status code.
      *
      * @return Response
      *   Guzzle 200 response with JSON body content.
      */
-    protected static function jsonFixtureResponse(string $name): Response
+    protected static function jsonFixtureResponse(string $name, int $code = 200): Response
     {
         return self::apiJsonResponse(
-            200,
+            $code,
             file_get_contents(__DIR__ . '/fixtures/' . $name . '.json')
         );
     }
