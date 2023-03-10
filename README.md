@@ -288,3 +288,4 @@ this project.
  - [ ] Membership entity (to replace stdClass)
  - [x] Improved handling of API error responses
  - [x] Improved handling of activation specifically
+ - [x] Get membership by MVault ID

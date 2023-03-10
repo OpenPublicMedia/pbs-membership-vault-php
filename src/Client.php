@@ -539,6 +539,27 @@ class Client
     }
 
     /**
+     * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-getMembership:get
+     *
+     * @param string $mvault_id
+     *   MVault ID to query for.
+     *
+     * @return stdClass
+     *   The Membership object is one is found.
+     *
+     * @throws BadRequestException
+     * @throws MembershipNotFoundException
+     */
+    public function getMembershipByMvaultId(string $mvault_id): stdClass
+    {
+        $response = $this->getOne("memberships/by_mvault_id/$mvault_id");
+        if (empty($response)) {
+            throw new MembershipNotFoundException('mvault_id', $mvault_id);
+        }
+        return $response;
+    }
+
+    /**
      * @url https://docs.pbs.org/display/MV/Membership+Vault+API#MembershipVaultAPI-list_token
      *
      * Despite the "list" naming for the endpoint, only a single object is
